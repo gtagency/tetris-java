@@ -57,6 +57,21 @@ public class BotStarter {
 		return moves;
 	}
 	
+	public int cost(Field fieldState) {
+		int height = fieldState.getHeight();
+		int width = fieldState.getWidth();
+		for (int i = width - 1; i >= 0; i--) {
+			for (int j = height - 1; j >= 0; j--) {
+				CellType temp = fieldState.getCell(i, j).getState();
+				if (temp != EMPTY && temp != SHAPE) {
+					height = j + 1;
+					j = -1;
+				}
+			}
+		}
+		
+	}
+
 	public static void main(String[] args)
 	{
 		BotParser parser = new BotParser(new BotStarter());
