@@ -9,6 +9,7 @@
     <url>http://github.com/gtagency/tetris-java</url>
 
     <build>
+        <defaultGoal>compile</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
