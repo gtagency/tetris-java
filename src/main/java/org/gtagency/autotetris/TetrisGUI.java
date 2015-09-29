@@ -142,10 +142,12 @@ public class TetrisGUI{
                     StringBuilder field = new StringBuilder();
                     for(int i=0; i<board.length(); i++){
                         for(int j=0; j<board.width(); j++){
-                            if (board.get(i, j).equals(Color.BLUE) && !fallingPiece.isAt(i, j)){
-                                field.append(0);
-                            } else {
+                            if (fallingPiece.isAt(i, j)){
                                 field.append(1);
+                            } else if(!board.get(i, j).equals(Color.BLUE)){
+                                field.append(2);
+                            } else {
+                                field.append(0);
                             }
                             if(j != board.width()-1)
                                 field.append(",");
