@@ -49,7 +49,7 @@ public class TetrisGUI{
     private final long FIELD_WIDTH = 10l;
     private final long FIELD_HEIGHT = 20l;
 
-    public Tetris()
+    public TetrisGUI()
     {
         messages = new StringBuilder();
         this.playerName = "player1";
@@ -277,7 +277,7 @@ public class TetrisGUI{
     {   
         IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp bin bot/BotStarter"));
         player.run();
-        new Tetris().setupGame(player);
+        new TetrisGUI().setupGame(player);
     }
 
 
