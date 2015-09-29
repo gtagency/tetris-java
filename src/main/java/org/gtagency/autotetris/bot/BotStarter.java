@@ -57,6 +57,7 @@ public class BotStarter {
 		return moves;
 	}
 
+	//lower score is better
 	public int howGoodIsField(Field field) {
 		int totalHeight = field.getHeight();
 		int totalWidth = field.getWidth();
