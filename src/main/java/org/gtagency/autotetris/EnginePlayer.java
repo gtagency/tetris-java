@@ -21,6 +21,7 @@ import java.io.IOException;
 /**
  * Class that represents one Robot object and stores additional information such as the name that the bot receives and
  * which person is the author.
+ * modified by Mason Liu
  */
 public class EnginePlayer
 {
@@ -92,9 +93,7 @@ public class EnginePlayer
     public String requestMove() 
     {
         long startTime = System.currentTimeMillis();
-        
         try {
-            //this.bot.process(String.format("Action %s %d", this.name, this.timeBank), "input");
             this.bot.process("action moves " + timeBank, "input");
             
         } catch (IOException e) {
@@ -103,7 +102,6 @@ public class EnginePlayer
         String response = this.bot.getResponse(this.timeBank);
         long timeElapsed = System.currentTimeMillis() - startTime;
         updateTimeBank(timeElapsed);
-        
         return response;
     }
 }

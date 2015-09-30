@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -48,12 +50,21 @@ public class TetrisGUI{
     private final long TIMEBANK_MAX = 10000l;       // time bank each bot receives
     private final long FIELD_WIDTH = 10l;
     private final long FIELD_HEIGHT = 20l;
-
+    
+    /*
+     * An interface that simulates a Tetris game for 1 player. 
+     * Handles all IO with the bot and the game mechanics themselves
+     * To run, first change the string on line 307 to execute the bot class file
+     * To display messages from the bot, use System.err.println
+     * Pause by pressing P
+     * @author Mason Liu
+     * */
     public TetrisGUI()
     {
         messages = new StringBuilder();
         this.playerName = "player1";
         round = -1;
+        r=new Random();
     }
 
 
@@ -99,7 +110,6 @@ public class TetrisGUI{
     }
 
     public void finishSetUp(){
-        r=new Random();
         moves= new ArrayList<String>();
         frame = new JFrame("Tetris");
         boardPanel = new JPanel();
@@ -114,8 +124,10 @@ public class TetrisGUI{
         frame.setResizable(false);
         dump= new JTextArea(player.getDump());
         dumpScroll = new JScrollPane(dump);
+        dump.setEditable(false);
         dumpScroll.setPreferredSize(new Dimension(300, 300));
         msgBox = new JTextArea(messages.toString());
+        msgBox.setEditable(false);
         msgScroll = new JScrollPane(msgBox);
         msgScroll.setPreferredSize(new Dimension(300,300));
         refPanel.add(dumpScroll, BorderLayout.CENTER);
@@ -124,6 +136,26 @@ public class TetrisGUI{
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(boardPanel, BorderLayout.WEST);
         frame.add(refPanel, BorderLayout.EAST);
+        frame.setAlwaysOnTop(true);
+        frame.setFocusable(true);
+        frame.addKeyListener(new KeyListener(){
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(e.getKeyChar() == 'p'){
+                    if(timer.isRunning()){
+                        timer.stop();
+                        messages.append("Game Paused \n");
+                        msgBox.setText(messages.toString());
+                    } else {
+                        messages.append("Game Restarted \n");
+                        msgBox.setText(messages.toString());
+                        timer.start();
+                    }
+                }
+            }
+            @Override public void keyPressed(KeyEvent e) {}
+            @Override public void keyReleased(KeyEvent e) {}
+        });
         grid= new JLabel[20][10];
         for(int i=0; i<grid.length; i++){
             for(int j=0; j<grid[i].length; j++){
@@ -165,6 +197,7 @@ public class TetrisGUI{
                 processMove(moves.remove(0));
                 dump.setText(player.getDump());
                 msgBox.setText(messages.toString());
+                frame.requestFocus();
             }
         });
         timer.setRepeats(true);
@@ -173,11 +206,10 @@ public class TetrisGUI{
         board=new Board();
         /*c.data.trash=[]
         c.data.rowsToSend=0
-        c.data.rowsToReceive=0
-        root.after(500,timerFired)*/
+        c.data.rowsToReceive=0*/
         nextPiece=genRandomPiece();
         newFallingPiece();
-        redrawBg();
+        drawBoard();
         redrawPiece();
     }
 
@@ -200,9 +232,11 @@ public class TetrisGUI{
             //board.addReceivedRows()
             newFallingPiece();
             if(!fallingPiece.isValid()){
-                timer.stop(); //LOSE
+                timer.stop();
+                messages.append("You Lose");
+                msgBox.setText(messages.toString());
             }
-            redrawBg();
+            drawBoard();
         }
         redrawPiece();
     }
@@ -228,34 +262,27 @@ public class TetrisGUI{
                     drawCell(i+fallingPiece.row, j+fallingPiece.col, fallingPiece.color);
             }}
     }
-
-    public void redrawBg(){
-        /*if c.data.lost:
-            c.configure(background="grey")
-            c.create_text(135, 525, text="You Lose")*/
-        drawBoard();
-    }
     public void processMove(String s){
         messages.append(s + "\n");
         switch(s){
         case "left":
             fallingPiece.move(0, -1);
-            redrawBg();
+            drawBoard();
             redrawPiece();
             break;
         case "right":
             fallingPiece.move(0, 1);
-            redrawBg();
+            drawBoard();
             redrawPiece();
             break;
         case "down":
             movePieceDown();
-            redrawBg();
+            drawBoard();
             redrawPiece();
             break;
         case "turnleft":
             fallingPiece.rotate(true);
-            redrawBg();
+            drawBoard();
             redrawPiece();
             break;
         case "turnright":
@@ -265,7 +292,7 @@ public class TetrisGUI{
                 fallingPiece.rotate(false);
                 fallingPiece.rotate(true);
             }
-            redrawBg();
+            drawBoard();
             redrawPiece();
             break;
         case "drop":

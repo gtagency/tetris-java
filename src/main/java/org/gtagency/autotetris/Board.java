@@ -1,5 +1,9 @@
 import java.awt.Color;
-
+/* represents the Tetris field in the simulator
+ * I translated this from an old Tetris program I wrote in python 
+ * so some things are odd/bad
+ * @author Mason Liu
+ * */
 public class Board{
     private Color[][] grid;
 
@@ -29,7 +33,6 @@ public class Board{
         //int count=0;
         int temp;
         while (newRow>=0){
-            //System.out.println("test");
             while (oldRow>=0 && isFull(oldRow)){
                 oldRow-=1;
             }

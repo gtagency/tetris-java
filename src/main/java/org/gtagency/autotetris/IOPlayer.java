@@ -1,5 +1,6 @@
 // Copyright 2015 theaigames.com (developers@theaigames.com)
 
+
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
 //    You may obtain a copy of the License at
@@ -27,6 +28,7 @@ import java.util.logging.Logger;
  * Does the communication between the bot process and the engine
  * 
  * @author Jackie Xu <jackie@starapple.nl>, Jim van Eeden <jim@starapple.nl>
+ * modified by Mason Liu
  */
 public class IOPlayer implements Runnable {
     
@@ -54,6 +56,10 @@ public class IOPlayer implements Runnable {
     // processes a line by reading it or writing it
     public void process(String line, String type) throws IOException {
         if (!this.finished) {
+            String temp = errorGobbler.readLine(10);
+            if(temp != null){
+                dump.append("Bot Error Message: " + temp + "\n");
+            }
             switch (type) {
             case "input":
                 try {
@@ -64,12 +70,6 @@ public class IOPlayer implements Runnable {
                 }
                 addToDump(line + "\n");
                 break;
-            case "output":
-    //          System.out.println("out: " + line);
-                break;
-            case "error":
-    //          System.out.println("error: " + line);
-                break;
             }
         }
     }
@@ -78,6 +78,10 @@ public class IOPlayer implements Runnable {
     public String getResponse(long timeOut) {
         long timeStart = System.currentTimeMillis();
         String response;
+        String temp = errorGobbler.readLine(10);
+        if(temp != null){
+            dump.append("Bot Error Message: " + temp + "\n");
+        }
         
         if (this.errorCounter > this.maxErrors) {
             addToDump("Maximum number (" + this.maxErrors + ") of time-outs reached: skipping all moves.\n");
