@@ -60,7 +60,8 @@ public class BotStarter {
     public int boardRank(BotState state) {
         int height;
         int flag = 0;
-        for (int i= state.FIELD_HEIGHT; i>0; --i) {
+        int i = 0;
+        for (i= state.FIELD_HEIGHT; i>0; --i) {
             for (int j = 0; j < state.FIELD_WIDTH; ++j) {
                 if(!state.isEmpty()) {
                     height = i;
