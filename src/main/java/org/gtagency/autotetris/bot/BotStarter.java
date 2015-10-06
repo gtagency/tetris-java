@@ -57,30 +57,6 @@ public class BotStarter {
         return moves;
     }
 
-    public int h(Botstate state){
-        Field f= state.getMyField();
-        Cell[] neighbors = new Cell[4];
-        int h=0;
-        for(int i=0; i<f.getHeight(); i++){
-            for (int j=0; j<f.getWidth(); j++){
-                Cell c = f.getCell(i,j);
-                if(!c.isEmpty()){
-                    neighbors[0]=f.getCell(i-1,j);
-                    neighbors[1]=f.getCell(i+1,j);
-                    neighbors[2]=f.getCell(i,j+1);
-                    neighbors[3]=f.getCell(i,j-1);
-                
-                for (Cell n: neighbors){
-                    if (n!= null && n.isEmpty()) {
-                        h++;
-                    }
-                }
-                }
-            }
-        }
-        return h;
-    }
-
     public static void main(String[] args)
     {
         BotParser parser = new BotParser(new BotStarter());
