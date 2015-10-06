@@ -33,6 +33,17 @@ public class Field {
 	private int width;
 	private int height;
 	private Cell grid[][];
+    
+    public Field(Field field) {
+		this.width = field.getWidth();
+		this.height = field.getHeight();
+        this.grid = new Cell[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                grid[x][y] = field.getCell(x, y);
+            }
+        }
+    }
 
 	public Field(int width, int height, String fieldString) {
 		this.width = width;
@@ -67,6 +78,22 @@ public class Field {
 			return null;
 		return this.grid[x][y];
 	}
+
+    public void setCell(int x, int y, Cell c) {
+        this.grid[x][y] = c;
+    }
+
+    public void clearRow() {
+        for (int y = 0; y < getHeight() - 1; y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                this.grid[y][x] = this.grid[y + 1][x];
+            }
+        }
+        for (int x = 0; x < getWidth(); x++) {
+            this.grid[getHeight() - 1][x] = new Cell();
+        }
+    }
+
 	
 	public int getHeight() {
 		return this.height;
