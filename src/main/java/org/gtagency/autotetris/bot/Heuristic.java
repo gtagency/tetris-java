@@ -4,4 +4,5 @@ import org.gtagency.autotetris.field.Field;
 
 public interface Heuristic {
     double value(Field f);
+	int filledCells(Field f);
 }
