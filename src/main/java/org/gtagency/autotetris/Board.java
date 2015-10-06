@@ -15,6 +15,18 @@ public class Board{
             }
         }
     }
+    public Board(int[][] g){
+        grid = new Color[20][10];
+        for(int i=0; i<grid.length; i++){
+            for(int j=0; j<grid[i].length; j++){
+                if(g[i][j] == 0){
+                    grid[i][j]=Color.BLUE;
+                } else {
+                    grid[i][j]=Color.BLACK;
+                }
+            }
+        }
+    }
     public Color get(int w, int h){
         return grid[w][h];
     }

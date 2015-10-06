@@ -1,4 +1,3 @@
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -51,12 +50,33 @@ public class TetrisGUI{
     private final long FIELD_WIDTH = 10l;
     private final long FIELD_HEIGHT = 20l;
     
+    private final Board testBoard = new Board(new int[][] {{0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {0,0,0,0,0,0,0,0,0,0},
+                                                           {2,2,0,0,0,0,0,0,0,0},
+                                                           {2,2,0,0,0,0,0,0,0,0}});
     /*
      * An interface that simulates a Tetris game for 1 player. 
      * Handles all IO with the bot and the game mechanics themselves
-     * To run, first change the string on line 307 to execute the bot class file
+     * To run, first change the string on line 335 to execute the bot class file
      * To display messages from the bot, use System.err.println
      * Pause by pressing P
+     * Change the test board on line 53, Load test board by pressing L
      * @author Mason Liu
      * */
     public TetrisGUI()
@@ -151,6 +171,14 @@ public class TetrisGUI{
                         msgBox.setText(messages.toString());
                         timer.start();
                     }
+                }
+                if(e.getKeyChar() == 'l'){
+                    board = testBoard;
+                    messages.append("Test Board Loaded \n");
+                    msgBox.setText(messages.toString());
+                    newFallingPiece();
+                    newFallingPiece();
+                    drawBoard();
                 }
             }
             @Override public void keyPressed(KeyEvent e) {}
@@ -290,7 +318,7 @@ public class TetrisGUI{
             fallingPiece.rotate(false);
             if (!fallingPiece.rotate(true)){
                 fallingPiece.rotate(false);
-                fallingPiece.rotate(true);
+                fallingPiece.rotate(false);
             }
             drawBoard();
             redrawPiece();
