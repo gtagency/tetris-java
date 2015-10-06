@@ -44,7 +44,7 @@ public class BotStarter {
 	 * @param timeout : time to respond
 	 * @return : a list of moves to execute
 	 */
-	public ArrayList<MoveType> getMoves(BotState state, long timeout) {
+	/*public ArrayList<MoveType> getMoves(BotState state, long timeout) {
 		ArrayList<MoveType> moves = new ArrayList<MoveType>();
 		Random rnd = new Random();
 		
@@ -55,7 +55,20 @@ public class BotStarter {
 		}
 		
 		return moves;
-	}
+	}*/
+
+    public ArrayList<MoveType> getMoves(BotState state, long timeout) {
+        ArrayList<MoveType> moves = new ArrayList<MoveType>();
+
+        int numOfMoves = 1; // Only make one move for now
+
+        List<MoveType> allMoves = Collections.unmodifiableList(Arrays.asList(MoveType.values()));
+        for (int i = 0; i < numOfMoves; i++) {
+            int moveIndex = 0; // index of the move to execute
+            moves.add(allMoves.get(moveIndex));
+        }
+        return moves;
+    }
 	
 	public static void main(String[] args)
 	{

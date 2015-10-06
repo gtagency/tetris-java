@@ -94,7 +94,26 @@ public class Field {
         }
     }
 
-	
+	@Override
+    public String toString() {
+        String result = "";
+        for (int i = this.getHeight() - 1; i >= 0; i--) {
+            for (int j = 0; j < this.getWidth(); j++) {
+                if (this.getCell(i, j).isBlock()) {
+                    result += "+";
+                } else if (this.getCell(i, j).isSolid()) {
+                    result += "X";
+                } else if (this.getCell(i, j).isShape()) {
+                    result += "0";
+                } else {
+                    result += "*";
+                }
+            }
+            result += "\n";
+        }
+        return result;
+    }
+
 	public int getHeight() {
 		return this.height;
 	}

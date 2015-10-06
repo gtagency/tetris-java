@@ -26,4 +26,12 @@ public class ColeUtility implements Utility {
         }
         return completedRows;
     }
+/*
+    public int getHeight(Field f) {
+        int height = 0;
+        for (int i = f.getHeight() - 1; i >= 0; i--) {
+            for (int j = 
+        }
+    }
+    */
 }
