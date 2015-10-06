@@ -143,4 +143,22 @@ public class BotState {
 	public int getRound() {
 		return this.round;
 	}
+
+	public int fieldStrength(Field field) {
+
+		int totalHeight = field.getHeight();
+		int totalWidth = field.getWidth();
+
+		for (int row = totalHeight - 1; row < 0; row--) {
+			for (int col = 0; col < width; col++) {
+				Cell theCell = field.getCell(row, col);
+				if (theCell.isBlock() || theCell.isSolid()) {
+					return row;
+				}
+			}
+		} else {
+			return 0;
+		}
+
+	}
 }
