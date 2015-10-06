@@ -34,7 +34,7 @@ import org.gtagency.autotetris.moves.MoveType;
  * @author Jim van Eeden <jim@starapple.nl>
  */
 
-public class BotStarter {
+public class BotStarter implements Heuristic {
 
 	public BotStarter() {}
 	
@@ -55,6 +55,19 @@ public class BotStarter {
 		}
 		
 		return moves;
+	}
+	
+	public int filledCells(Field f) {
+		int total = 0;
+		for (int i = height - 1; i > 0; i-- ) {
+			for (int j = 0; j < width; j++) {
+				Cell cell = f.getCell(i,j);
+				if (!cell.isEmpty()) {
+					total++;
+				}
+			}
+		}
+		return total;
 	}
 	
 	public static void main(String[] args)
