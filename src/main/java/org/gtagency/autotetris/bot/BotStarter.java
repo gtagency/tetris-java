@@ -62,4 +62,19 @@ public class BotStarter {
 		BotParser parser = new BotParser(new BotStarter());
 		parser.run();
 	}
+	
+	public int cost(Field field) {
+		int width = field.getWidth();
+		int height = field.getHeight();
+		
+		for (int i = height - 1; i > 0; i-- ) {
+			for (int j = 0; j < width; j++) {
+				Cell cell = field.getCell(i,j);
+				if (cell.isSolid() || cell.isBlock()) {
+					return i;
+				}
+			}
+		}
+		return 0;
+	}
 }
