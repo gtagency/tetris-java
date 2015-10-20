@@ -1,3 +1,4 @@
+package org.gtagency.autotetris;
 import java.awt.Color;
 import java.awt.Point;
 /* represents individual Tetris pieces in the simulator

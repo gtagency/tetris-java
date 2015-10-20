@@ -1,3 +1,4 @@
+package org.gtagency.autotetris;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -21,6 +22,8 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 
 import java.lang.Thread;
+
+import org.gtagency.autotetris.*;
 
 public class TetrisGUI{
     private String playerName;
@@ -101,12 +104,12 @@ public class TetrisGUI{
 
     private void sendSettings(EnginePlayer player)
     {
+        player.sendInfo("settings player_names player1");
         player.sendInfo("settings your_bot " + player.getName());
         player.sendInfo("settings timebank " + TIMEBANK_MAX);
         player.sendInfo("settings time_per_move " + TIME_PER_MOVE); 
         player.sendInfo("settings field_width " + FIELD_WIDTH); 
         player.sendInfo("settings field_height " + FIELD_HEIGHT); 
-        player.sendInfo("settings player_names player1");
     }
 
     public void finishSetUp(){
@@ -304,7 +307,7 @@ public class TetrisGUI{
 
     public static void main(String args[]) throws Exception
     {   
-        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp bin bot/BotStarter"));
+        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp target/classes/ org.gtagency.autotetris.bot.BotStarter"));
         player.run();
         new TetrisGUI().setupGame(player);
     }

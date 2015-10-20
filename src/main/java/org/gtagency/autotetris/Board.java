@@ -1,3 +1,5 @@
+package org.gtagency.autotetris;
+
 import java.awt.Color;
 /* represents the Tetris field in the simulator
  * I translated this from an old Tetris program I wrote in python 

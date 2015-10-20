@@ -26,6 +26,7 @@ import org.gtagency.autotetris.player.Player;
 import org.gtagency.autotetris.field.CellType;
 import org.gtagency.autotetris.field.Cell;
 import org.gtagency.autotetris.field.Field;
+import org.gtagency.autotetris.field.Shape;
 import org.gtagency.autotetris.field.ShapeType;
 import org.gtagency.autotetris.moves.MoveType;
 
@@ -127,58 +128,55 @@ public class BotState {
 		return this.myBot.getField();
 	}
 
-    public static Field getNextField(Field field, MoveType move) {  
-        Field newField = new Field(field);
-        for (int i = 0; i < field.getWidth(); i++) {
-            for (int j = 0; j < field.getHeight(); j++) {
-                Cell c = field.getCell(i, j);
-                if (c.isShape()) {
-                    if (move == MoveType.LEFT) {
-                        if (i == 0) {
-                            // hit wall, return same as before
-                            return new Field(field);
-                        }
-                        newField.setCell(i - 1,j, c);
-                        c.setLocation(i - 1, j);
-                        newField.setCell(i,j, new Cell());
-                    } else if (move == MoveType.RIGHT) {
-                        if (i == field.getWidth() - 1) {
-                            // hit wall, return same as before
-                            return new Field(field);
-                        }
-                        newField.setCell(i + 1,j, c);
-                        c.setLocation(i + 1, j);
-                        newField.setCell(i,j, new Cell());
-                    } else if (move == MoveType.DOWN) {
-                        if (j == 0) {
-                            // hit wall, return same as before
-                            return new Field(field);
-                        }
-                        newField.setCell(i,j-1, c);
-                        c.setLocation(i, j - 1);
-                        newField.setCell(i,j, new Cell());
-                    } 
-                }
+    public static Field getNextField(Field field, Shape shape, MoveType move) {  
+        boolean dropped = false;
+        if (move == MoveType.LEFT) {
+            shape.oneLeft();
+        } else if (move == MoveType.RIGHT) {
+            shape.oneRight();
+        } else if (move == MoveType.DOWN) {
+            shape.oneDown();
+        } else if (move == MoveType.TURNLEFT) {
+            shape.turnLeft();
+        } else if (move == MoveType.TURNRIGHT) {
+            shape.turnRight();
+        } else if (move == MoveType.DROP) {
+            while (!shape.hasCollision(field) && !shape.isOutOfBoundaries(field)) {
+                shape.oneDown();
             }
+            shape.oneUp();
+            dropped = true;
+            // TODO: convert to blocks
         }
-        for (int i = 0; i < newField.getWidth(); i++) {
-            for (int j = 0; j < newField.getHeight(); j++) {
-                Cell cell = newField.getCell(i, j);
-                for (Cell c : cell.getNeighbors(newField)) {
-                    if (c.isBlock()) {
-                        cell.setBlock();
+
+
+        if (shape.hasCollision(field) || shape.isOutOfBoundaries(field)) {
+            // Invalid move, do nothing
+            System.err.printf("Collision or out of bounds on move %s, doing nothing. \n", move);
+            return field;
+        } 
+        Field newField = new Field(field, shape);
+        
+        if (dropped) {
+            for (int i = 0; i < newField.getWidth(); i++) {
+                for (int j = 0; j < newField.getHeight(); j++) {
+                    Cell cell = newField.getCell(i, j);
+                    for (Cell c : cell.getNeighbors(newField)) {
+                        if (c.isBlock()) {
+                            cell.setBlock();
+                        }
                     }
                 }
             }
-        }
-        boolean filled = true;
-        while (filled) {
-            for (int i = 0; i < newField.getWidth() && filled; i++) {
-                Cell cell = newField.getCell(i, 0);
-                filled = filled && cell.isBlock();
-            }
-            if (filled) {
-                newField.clearRow();
+            boolean filled = true;
+            while (filled) {
+                for (int i = 0; i < newField.getWidth() && filled; i++) {
+                    Cell cell = newField.getCell(i, 0);
+                    filled = filled && cell.isBlock();
+                }
+                if (filled) {
+                    newField.clearRow();
+                }
             }
         }
    
