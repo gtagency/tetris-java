@@ -1,3 +1,5 @@
+package org.gtagency.autotetris;
+
 // Copyright 2014 theaigames.com (developers@theaigames.com)
 
 //    Licensed under the Apache License, Version 2.0 (the "License");

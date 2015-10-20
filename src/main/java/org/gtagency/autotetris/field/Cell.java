@@ -18,6 +18,8 @@
 package org.gtagency.autotetris.field;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.gtagency.autotetris.field.CellType;
 
@@ -61,6 +63,10 @@ public class Cell {
 	public void setShape() {
 		this.state = CellType.SHAPE;
 	}
+
+    public void setBlock() {
+        this.state = CellType.BLOCK;
+    }
 	
 	public void setLocation(int x, int y) {
 		if(this.location == null)
@@ -92,4 +98,18 @@ public class Cell {
 	public Point getLocation() {
 		return this.location;
 	}
+
+    public List<Cell> getNeighbors(Field f) {
+        List<Cell> neighbors = new ArrayList<>();
+        if (location.x > 0) {
+            neighbors.add(f.getCell(location.x - 1, location.y));
+        }
+        if (location.x < f.getWidth() - 1) {
+            neighbors.add(f.getCell(location.x + 1, location.y));
+        }
+        if (location.y > 0) {
+            neighbors.add(f.getCell(location.x, location.y - 1));
+        }
+        return neighbors;
+    }        
 }

@@ -51,7 +51,25 @@ public class Shape {
 		setShape();
 		setBlockLocations();
 	}
-	
+
+    public boolean hasCollision(Field f) {
+        for (Cell cell : blocks) {
+            if (cell.hasCollision(f)) {
+                return true;
+            }
+        }
+        return false;
+    }
+            
+	public boolean isOutOfBoundaries(Field f) {
+	    for (Cell cell : blocks) {
+            if (cell.isOutOfBoundaries(f)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	// ACTIONS (no checks for errors are performed in the actions!)
 	
 	/**
@@ -87,8 +105,14 @@ public class Shape {
 		this.location.y++;
 		this.setBlockLocations();
 	}
-	
-	public void oneRight() {
+
+    public void oneUp() {
+		
+		this.location.y--;
+		this.setBlockLocations();
+	}
+
+    public void oneRight() {
 		
 		this.location.x++;
 		this.setBlockLocations();

@@ -1,3 +1,5 @@
+package org.gtagency.autotetris;
+
 // Copyright 2015 theaigames.com (developers@theaigames.com)
 
 
@@ -66,7 +68,9 @@ public class IOPlayer implements Runnable {
                     inputStream.write(line + "\n");
                     inputStream.flush();
                 } catch(IOException e) {
-                    System.err.println("Writing to bot failed");
+                    System.err.println("Writing to bot failed!");
+                    e.printStackTrace();
+                    System.err.println(e);
                 }
                 addToDump(line + "\n");
                 break;

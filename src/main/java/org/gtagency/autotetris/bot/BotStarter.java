@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.gtagency.autotetris.moves.MoveType;
+import org.gtagency.autotetris.field.Field;
+import org.gtagency.autotetris.field.Shape;
 
 /**
  * BotStarter class
@@ -46,39 +48,37 @@ public class BotStarter {
      */
     public ArrayList<MoveType> getMoves(BotState state, long timeout) {
         ArrayList<MoveType> moves = new ArrayList<MoveType>();
-        Random rnd = new Random();
 
-        int nrOfMoves = rnd.nextInt(41);
         List<MoveType> allMoves = Collections.unmodifiableList(Arrays.asList(MoveType.values()));
-        for(int n=0; n<=nrOfMoves; n++) {
-            moves.add(allMoves.get(rnd.nextInt(allMoves.size())));
-        }
-
-        return moves;
-    }
-
-    public int h(Botstate state){
-        Field f= state.getMyField();
-        Cell[] neighbors = new Cell[4];
-        int h=0;
-        for(int i=0; i<f.getHeight(); i++){
-            for (int j=0; j<f.getWidth(); j++){
-                Cell c = f.getCell(i,j);
-                if(!c.isEmpty()){
-                    neighbors[0]=f.getCell(i-1,j);
-                    neighbors[1]=f.getCell(i+1,j);
-                    neighbors[2]=f.getCell(i,j+1);
-                    neighbors[3]=f.getCell(i,j-1);
-                
-                for (Cell n: neighbors){
-                    if (n!= null && n.isEmpty()) {
-                        h++;
-                    }
-                }
-                }
+        double score = 0;
+        MoveType bestMove = MoveType.DROP;
+        Field field = state.getMyField();
+        Shape shape = new Shape(state.getCurrentShape(), field,
+            state.getShapeLocation());
+        for (MoveType move : MoveType.values()) {
+            Field newField = BotState.getNextField(field, shape, move);
+            double u = utility(newField, shape);
+            if ( u >= score ) {
+                bestMove = move;
+                score = u;
             }
         }
-        return h;
+        final MoveType bestM = bestMove;
+        return new ArrayList() {{ add(bestM); }};
+    }
+
+    private double utility(Field f, Shape shape) {
+        int shapeY = shape.getLocation().y;
+        for(int y = f.getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < f.getWidth(); x++) {
+                if (f.getCell(x, y).isBlock() || f.getCell(x,y).isSolid()) {
+                    return shapeY - y; 
+                }
+            }
+
+        }
+
+        return shapeY;
     }
 
     public static void main(String[] args)

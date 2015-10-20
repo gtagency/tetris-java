@@ -26,7 +26,7 @@ package org.gtagency.autotetris.moves;
  */
 
 public enum MoveType {
-	DOWN, LEFT, RIGHT, TURNLEFT, TURNRIGHT , DROP;
+	DOWN, LEFT, RIGHT, TURNLEFT, TURNRIGHT, DROP;
 	
 	@Override
 	public String toString() {
