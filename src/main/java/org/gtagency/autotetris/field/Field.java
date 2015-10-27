@@ -17,8 +17,13 @@
 
 package org.gtagency.autotetris.field;
 
+import java.awt.Color;
 import java.awt.Point;
+
 import org.gtagency.autotetris.field.Cell;
+
+
+
 
 /**
  * Field class
@@ -30,14 +35,14 @@ import org.gtagency.autotetris.field.Cell;
  */
 
 public class Field {
-	
-	private int width;
-	private int height;
-	private Cell grid[][];
-    
+
+    private int width;
+    private int height;
+    private Cell grid[][];
+
     public Field(Field field, Shape shape) {
-		this.width = field.getWidth();
-		this.height = field.getHeight();
+        this.width = field.getWidth();
+        this.height = field.getHeight();
         this.grid = new Cell[width][height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -53,42 +58,77 @@ public class Field {
             Point loc = cell.getLocation();
             grid[loc.x][loc.y] = cell;
         }
-        
+
     }
 
-	public Field(int width, int height, String fieldString) {
-		this.width = width;
-		this.height = height;
-		
-		parse(fieldString);
-	}
-	
-	/**
-	 * Parses the input string to get a grid with Cell objects
-	 * @param fieldString : input string
-	 */
-	private void parse(String fieldString) {
-		
-		this.grid = new Cell[this.width][this.height];
-		
-		// get the separate rows
-		String[] rows = fieldString.split(";");
-		for(int y=0; y < this.height; y++) {
-			String[] rowCells = rows[y].split(",");
-			
-			// parse each cell of the row
-			for(int x=0; x < this.width; x++) {
-				int cellCode = Integer.parseInt(rowCells[x]);
-				this.grid[x][y] = new Cell(x, y, CellType.values()[cellCode]);
-			}
-		}
-	}
-	
-	public Cell getCell(int x, int y) {
-		if(x < 0 || x >= this.width || y < 0 || y >= this.height)
-			return null;
-		return this.grid[x][y];
-	}
+    public Field(int width, int height, String fieldString) {
+        this.width = width;
+        this.height = height;
+
+        parse(fieldString);
+    }
+
+    public Field(int width, int height) {
+        this.width = width;
+        this.height = height;
+        this.grid = new Cell[width][height];   
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                grid[x][y] = new Cell(x, y, CellType.EMPTY);
+            }
+        }
+    }
+    /**
+     * Parses the input string to get a grid with Cell objects
+     * @param fieldString : input string
+     */
+    private void parse(String fieldString) {
+
+        this.grid = new Cell[this.width][this.height];
+
+        // get the separate rows
+        String[] rows = fieldString.split(";");
+        for(int y=0; y < this.height; y++) {
+            String[] rowCells = rows[y].split(",");
+
+            // parse each cell of the row
+            for(int x=0; x < this.width; x++) {
+                int cellCode = Integer.parseInt(rowCells[x]);
+                this.grid[x][y] = new Cell(x, y, CellType.values()[cellCode]);
+                if(cellCode != 0)
+                    this.grid[x][y].setColor(Color.BLACK);
+            }
+        }
+    }
+
+    public Shape liftShape(ShapeType type, Point location){
+        Shape tempShape = new Shape(type, this, location);
+        boolean correct;
+        do{
+            correct = true;
+            tempShape.turnRight();
+            for(int i=location.x; i < tempShape.getSize() + location.x; i++) {
+                for(int j=location.y; j < tempShape.getSize() + location.y; j++) {
+                    if(getCell(i, j) != null && tempShape.isAt(new Point(i,j)) != grid[i][j].isShape()){
+                        correct = false;
+                    }
+                }
+            }
+        } while(!correct);
+        for(int i=location.x; i < tempShape.getSize() + location.x; i++) {
+            for(int j=location.y; j < tempShape.getSize() + location.y; j++) {
+                if(getCell(i,j) != null && grid[i][j].isShape())
+                    grid[i][j].setState(CellType.EMPTY);
+            }
+        }
+        return tempShape;
+    }
+
+    public Cell getCell(int x, int y) {
+        if(x < 0 || x >= this.width || y < 0 || y >= this.height)
+            return null;
+        return this.grid[x][y];
+    }
 
     public void setCell(int x, int y, Cell c) {
         this.grid[x][y] = c;
@@ -102,16 +142,59 @@ public class Field {
         }
         for (int x = 0; x < getWidth(); x++) {
             this.grid[x][getHeight() - 1] = new Cell(x, getHeight() - 1, 
-                CellType.EMPTY);
+                    CellType.EMPTY);
         }
     }
 
-	
-	public int getHeight() {
-		return this.height;
-	}
-	
-	public int getWidth() {
-		return this.width;
-	}
+    public void removeFullRows(){
+        int oldRow=height-1;
+        int newRow=oldRow;
+        while (newRow>=0){
+            while (oldRow>=0 && isFull(oldRow)){
+                oldRow-=1;
+            }
+            if (oldRow>=0){
+                for(int i=0; i<width; i++){
+                    grid[i][newRow]=grid[i][oldRow];
+                }
+            }
+            else{
+                for(int i=0; i<width; i++){
+                    grid[i][newRow]=new Cell();
+                }
+            }
+            newRow-=1;
+            oldRow-=1;
+        }
+    }
+
+    public boolean isFull(int row){
+        for (int i=0; i<grid.length; i++){
+            if(!grid[i][row].isBlock())
+                return false;
+        }
+        return true;
+    }
+
+    public String toString(){
+        StringBuilder field = new StringBuilder();
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
+                field.append(grid[j][i].getState().ordinal());
+                if(j != width-1)
+                    field.append(",");
+            }
+            if(i != height-1)
+                field.append("\n");
+        }
+        return field.toString();
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
 }

@@ -17,6 +17,7 @@
 
 package org.gtagency.autotetris.field;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,15 +35,18 @@ import org.gtagency.autotetris.field.CellType;
 
 public class Cell {
 
+    private Color color;
 	private Point location;
 	private CellType state;
 	
 	public Cell() {
+	    this.color = Color.BLUE;
 		this.location = null;
 		this.state = CellType.EMPTY;
 	}
 
 	public Cell(int x, int y, CellType type) {
+	    this.color = Color.BLUE;
 		this.location = new Point(x, y);
 		this.state = type;
 	}
@@ -66,6 +70,14 @@ public class Cell {
 
     public void setBlock() {
         this.state = CellType.BLOCK;
+    }
+    
+    public void setState(CellType t) {
+        state = t;
+    }
+    
+    public void setColor(Color c) {
+        color = c;
     }
 	
 	public void setLocation(int x, int y) {
@@ -97,6 +109,10 @@ public class Cell {
 	
 	public Point getLocation() {
 		return this.location;
+	}
+	
+	public Color getColor() {
+	    return this.color;
 	}
 
     public List<Cell> getNeighbors(Field f) {

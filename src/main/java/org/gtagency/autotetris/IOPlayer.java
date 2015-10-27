@@ -59,8 +59,9 @@ public class IOPlayer implements Runnable {
     public void process(String line, String type) throws IOException {
         if (!this.finished) {
             String temp = errorGobbler.readLine(10);
-            if(temp != null){
+            while(temp != null){
                 dump.append("Bot Error Message: " + temp + "\n");
+                temp = errorGobbler.readLine(10);
             }
             switch (type) {
             case "input":
@@ -83,8 +84,9 @@ public class IOPlayer implements Runnable {
         long timeStart = System.currentTimeMillis();
         String response;
         String temp = errorGobbler.readLine(10);
-        if(temp != null){
+        while(temp != null){
             dump.append("Bot Error Message: " + temp + "\n");
+            temp = errorGobbler.readLine(10);
         }
         
         if (this.errorCounter > this.maxErrors) {
@@ -104,6 +106,7 @@ public class IOPlayer implements Runnable {
                     System.out.println("CLOSING");
                 }
                 addToDump("Output from your bot: null");
+                process.destroyForcibly();
                 return "";
             }
             

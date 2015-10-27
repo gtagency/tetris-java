@@ -17,6 +17,9 @@
 
 package org.gtagency.autotetris.field;
 
+import java.awt.Color;
+import java.awt.Point;
+
 /**
  * ShapeType class
  * 
@@ -26,5 +29,47 @@ package org.gtagency.autotetris.field;
  */
 
 public enum ShapeType {
-	I, J, L, O, S, T, Z, NONE;
+    I , J, L, O, S, T, Z, NONE;
+
+    public Color color(){
+        switch(ordinal()){
+        case 0:
+            return Color.CYAN;
+        case 1:
+            return Color.PINK;
+        case 2:
+            return Color.ORANGE;
+        case 3:
+            return Color.YELLOW;
+        case 4:
+            return Color.GREEN;
+        case 5:
+            return Color.MAGENTA;
+        case 6:
+            return Color.RED;
+        default:
+            return Color.BLACK;
+        }
+    }
+
+    public Point startPos(){
+        switch(ordinal()){
+        case 0:
+            return new Point(3, -1);
+            //case 1:
+            //   return Color.PINK;
+            //case 2:
+            //   return Color.ORANGE;
+        case 3:
+            return new Point(4,0);
+            //case 4:
+            //  return Color.GREEN;
+            //case 5:
+            //  return Color.MAGENTA;
+            //case 6:
+            //    return Color.RED;
+        default:
+            return new Point(3,0);
+        }    
+    }
 }

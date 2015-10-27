@@ -36,6 +36,7 @@ import org.gtagency.autotetris.field.ShapeType;
 public class Shape {
 
 	public ShapeType type;
+	private int orientation;
 	private Cell[][] shape; // 2-dimensional bounding box: a matrix that contains the block-cells of the shape
 	private Cell[] blocks; // array that contains only the block-cells of the shape
 	private int size;
@@ -52,6 +53,22 @@ public class Shape {
 		setBlockLocations();
 	}
 
+	public boolean isAt(Point p) {
+	    for (Cell cell : blocks) {
+            if (cell.getLocation().equals(p)) {
+                return true;
+            }
+        }
+        return false;
+	}
+	
+	public void place(){
+	    for (Cell cell : blocks) {
+	        field.getCell(cell.getLocation().x, cell.getLocation().y).setColor(type.color());
+            field.getCell(cell.getLocation().x, cell.getLocation().y).setState(CellType.BLOCK);
+        }
+	}
+	
     public boolean hasCollision(Field f) {
         for (Cell cell : blocks) {
             if (cell.hasCollision(f)) {
@@ -76,7 +93,7 @@ public class Shape {
 	 * Rotates the shape counter-clockwise
 	 */
 	public void turnLeft() {
-
+	    orientation=(orientation+3)%4;
 		Cell[][] temp = this.transposeShape();
 		for(int y=0; y < size; y++) {
 			for(int x=0; x < size; x++) {
@@ -91,7 +108,7 @@ public class Shape {
 	 * Rotates the shape clockwise
 	 */
 	public void turnRight() {
-
+	    orientation=(orientation+1)%4;
 		Cell[][] temp = this.transposeShape();
 		for(int x=0; x < size; x++) {
 			this.shape[x] = temp[size - x - 1];
@@ -240,6 +257,7 @@ public class Shape {
 	
 	public void setLocation(int x, int y) {
 		this.location = new Point(x, y);
+		setBlockLocations();
 	}
 	
 	public Cell[] getBlocks() {
@@ -250,7 +268,15 @@ public class Shape {
 		return this.location;
 	}
 	
+	public int getOrientation(){
+	    return orientation;
+	}
+	
 	public ShapeType getType() {
 		return this.type;
+	}
+	
+	public int getSize(){
+	    return size;
 	}
 }

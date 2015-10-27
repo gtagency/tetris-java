@@ -18,12 +18,11 @@
 package org.gtagency.autotetris.bot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.PriorityQueue;
+import java.util.TreeMap;
 
 import org.gtagency.autotetris.moves.MoveType;
+import org.gtagency.autotetris.field.Cell;
 import org.gtagency.autotetris.field.Field;
 import org.gtagency.autotetris.field.Shape;
 
@@ -48,42 +47,104 @@ public class BotStarter {
      */
     public ArrayList<MoveType> getMoves(BotState state, long timeout) {
         ArrayList<MoveType> moves = new ArrayList<MoveType>();
-
-        List<MoveType> allMoves = Collections.unmodifiableList(Arrays.asList(MoveType.values()));
-        double score = 0;
-        MoveType bestMove = MoveType.DROP;
         Field field = state.getMyField();
-        Shape shape = new Shape(state.getCurrentShape(), field,
-            state.getShapeLocation());
-        for (MoveType move : MoveType.values()) {
-            Field newField = BotState.getNextField(field, shape, move);
-            double u = utility(newField, shape);
-            if ( u >= score ) {
-                bestMove = move;
-                score = u;
+        Shape currentShape = field.liftShape(state.getCurrentShape(), state.getShapeLocation());
+        Shape tempShape = new Shape(state.getCurrentShape(), field, state.getShapeLocation());
+
+        ArrayList<Node> terminal = findTerminalStates(field, tempShape);
+        TreeMap<Integer, Node> sortedTerminal = new TreeMap<Integer, Node>();
+        for(Node i:terminal){
+            tempShape.setLocation(i.x, i.y);
+            while(tempShape.getOrientation()!=i.o){
+                tempShape.turnRight();
             }
+            sortedTerminal.put(eval(field, tempShape, state), i);
         }
-        final MoveType bestM = bestMove;
-        return new ArrayList() {{ add(bestM); }};
+        do{
+            moves.clear();
+            Node temp = sortedTerminal.pollFirstEntry().getValue();
+            tempShape.setLocation(temp.x, temp.y);
+            while(tempShape.getOrientation()!=temp.o){
+                tempShape.turnRight();
+            }
+        }while(!findPath(moves, field, currentShape, tempShape));
+        return moves;
     }
 
-    private double utility(Field f, Shape shape) {
-        int shapeY = shape.getLocation().y;
-        for(int y = f.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < f.getWidth(); x++) {
-                if (f.getCell(x, y).isBlock() || f.getCell(x,y).isSolid()) {
-                    return shapeY - y; 
+    private boolean findPath(ArrayList<MoveType> moves, Field field, Shape startShape, Shape targetShape){
+        PriorityQueue startQ = new PriorityQueue();
+        PriorityQueue endQ = new PriorityQueue();
+        return true;    
+    }
+
+    private ArrayList<Node> findTerminalStates(Field field, Shape tempShape){
+        ArrayList<Node> terminal = new ArrayList<>();
+        for(int k=0; k<4; k++){
+            for(int i=0; i<field.getWidth(); i++){
+                for(int j=0; j<field.getHeight(); j++){
+                    tempShape.setLocation(i, j);
+                    if(!(tempShape.isOutOfBoundaries(field) || tempShape.hasCollision(field))){
+                        tempShape.setLocation(i, j+1);
+                        if(tempShape.isOutOfBoundaries(field) || tempShape.hasCollision(field)){
+                            terminal.add(new Node(i,j,k));
+                        }
+                    }
                 }
             }
-
+            tempShape.turnRight();
         }
-
-        return shapeY;
+        return terminal;
     }
+
+    private int eval(Field field, Shape tempShape, BotState state){
+        Cell[] neighbors = new Cell[4];
+        int h=0;
+        for(int i=0; i<field.getWidth(); i++){
+            for (int j=0; j<field.getHeight(); j++){
+                Cell c = field.getCell(i,j);
+                if(!c.isEmpty() || tempShape.isAt(c.getLocation())){
+                    neighbors[0]=field.getCell(i-1,j);
+                    neighbors[1]=field.getCell(i+1,j);
+                    neighbors[2]=field.getCell(i,j+1);
+                    neighbors[3]=field.getCell(i,j-1);
+
+                    for (Cell n: neighbors){
+                        if (n!= null && n.isEmpty() && !tempShape.isAt(n.getLocation())) {
+                            h++;
+                        }
+                    }
+                }
+            }
+        }
+        return h;
+    }
+
 
     public static void main(String[] args)
     {
         BotParser parser = new BotParser(new BotStarter());
         parser.run();
     }
+    
+    private static class Node{
+        private int x;
+        private int y;
+        private int o;
+        Node parent;
+        
+        public Node(int x, int y, int o){
+            this.x=x;
+            this.y=y;
+            this.o=o;
+        }
+        
+        @Override
+        public boolean equals(Object n){
+            if(!(n instanceof Node))
+                return false;
+            return (x == ((Node)n).x) && (y == ((Node)n).y) && (o == ((Node)n).o);
+        }
+        
+    }
+    
 }
