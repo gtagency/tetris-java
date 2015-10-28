@@ -226,6 +226,7 @@ public class TetrisGUI{
                     }
 
                     player.sendInfo("update player1 field " + field);
+                    messages.append("Requesting Moves\n");
                     String input = player.requestMove();
                     String[] inputs = input.split(",");
                     for(String move: inputs)
@@ -253,6 +254,7 @@ public class TetrisGUI{
     }
 
     public void newFallingPiece(){
+        messages.append("New Piece\n");
         fallingPiece=nextPiece;
         nextPiece=genRandomPiece();
         player.sendInfo("update game this_piece_type " + fallingPiece.type);
@@ -279,7 +281,8 @@ public class TetrisGUI{
         return true;
     }
     public void drawCell(int width, int length, Color c){
-        grid[length][width].setBackground(c);
+        if(length >= 0 && width >=0)
+            grid[length][width].setBackground(c);
     }
 
     public void drawBoard(){
