@@ -346,7 +346,7 @@ public class TetrisGUI{
 
     public static void main(String args[]) throws Exception
     {   
-        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp bin org/gtagency/autotetris/bot/BotStarter"));
+        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp target/autotetris-0.1-SNAPSHOT.jar org.gtagency.autotetris.bot.BotStarter"));
         player.run();
         new TetrisGUI().setupGame(player);
     }

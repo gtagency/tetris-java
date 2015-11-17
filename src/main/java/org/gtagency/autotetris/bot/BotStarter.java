@@ -48,6 +48,7 @@ public class BotStarter {
      */
     public ArrayList<MoveType> getMoves(BotState state, long timeout) {
         ArrayList<MoveType> moves = new ArrayList<MoveType>();
+        Utility u = new PrimaryUtility();
         Field field = state.getMyField();
         Shape currentShape = field.liftShape(state.getCurrentShape(), state.getShapeLocation());
         Shape tempShape = new Shape(state.getCurrentShape(), field, state.getShapeLocation());
@@ -59,7 +60,7 @@ public class BotStarter {
             while(tempShape.getOrientation()!=i.o){
                 tempShape.turnRight();
             }
-            sortedTerminal.put(eval(field, tempShape, state), i);
+            sortedTerminal.put((int) u.value(field, tempShape, state), i);
         }
         do{
             moves.clear();
@@ -136,29 +137,6 @@ public class BotStarter {
             tempShape.turnRight();
         }
         return terminal;
-    }
-
-    private int eval(Field field, Shape tempShape, BotState state){
-        Cell[] neighbors = new Cell[4];
-        int h=0;
-        for(int i=0; i<field.getWidth(); i++){
-            for (int j=0; j<field.getHeight(); j++){
-                Cell c = field.getCell(i,j);
-                if(!c.isEmpty() || tempShape.isAt(c.getLocation())){
-                    neighbors[0]=field.getCell(i-1,j);
-                    neighbors[1]=field.getCell(i+1,j);
-                    neighbors[2]=field.getCell(i,j+1);
-                    neighbors[3]=field.getCell(i,j-1);
-
-                    for (Cell n: neighbors){
-                        if (n!= null && n.isEmpty() && !tempShape.isAt(n.getLocation())) {
-                            h++;
-                        }
-                    }
-                }
-            }
-        }
-        return h;
     }
 
 
