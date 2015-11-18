@@ -18,7 +18,9 @@
 package org.gtagency.autotetris.bot;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
@@ -48,23 +50,27 @@ public class BotStarter {
      */
     public ArrayList<MoveType> getMoves(BotState state, long timeout) {
         ArrayList<MoveType> moves = new ArrayList<MoveType>();
+        Utility u = new PrimaryUtility();
         Field field = state.getMyField();
         Shape currentShape = field.liftShape(state.getCurrentShape(), state.getShapeLocation());
         Shape tempShape = new Shape(state.getCurrentShape(), field, state.getShapeLocation());
 
         ArrayList<Node> terminal = findTerminalStates(field, tempShape);
-        TreeMap<Integer, Node> sortedTerminal = new TreeMap<Integer, Node>();
+        PriorityQueue<Node> sortedTerminal = new PriorityQueue<Node>(new NodeComparator());
+        //TreeMap<Integer, Node> sortedTerminal = new TreeMap<Integer, Node>();
         for(Node i:terminal){
             tempShape.setLocation(i.x, i.y);
             while(tempShape.getOrientation()!=i.o){
                 tempShape.turnRight();
             }
-            sortedTerminal.put(eval(field, tempShape, state), i);
+            i.u = (int) u.value(field, tempShape, state);
+            sortedTerminal.add(i);
         }
         do{
             moves.clear();
-            Node temp = sortedTerminal.pollFirstEntry().getValue();
-            System.err.println(temp.x + "," + temp.y + "," + temp.o);
+            Node temp = sortedTerminal.poll();
+            System.err.println(temp.u);
+            //System.err.println(temp.x + "," + temp.y + "," + temp.o);
             tempShape.setLocation(temp.x, temp.y);
             while(tempShape.getOrientation()!=temp.o){
                 tempShape.turnRight();
@@ -81,7 +87,7 @@ public class BotStarter {
         do{
             if(endNode.equals(startNode)){
                 while(endNode.parent != null){
-                    System.err.println(endNode.findMove(endNode.parent)+ "," + endNode.x+"," + endNode.y+ "," +endNode.o);
+                    //System.err.println(endNode.findMove(endNode.parent)+ "," + endNode.x+"," + endNode.y+ "," +endNode.o);
                     moves.add(endNode.findMove(endNode.parent));
                     endNode = endNode.parent;
                 }
@@ -104,7 +110,7 @@ public class BotStarter {
                 }
             }
             endNode = queue.poll();
-        } while(!queue.isEmpty());
+        } while(endNode != null);
         return false;
         /*Node startNode = new Node(startShape.getLocation().x, startShape.getLocation().y, startShape.getOrientation());
         Node endNode = new Node(targetShape.getLocation().x, targetShape.getLocation().y, targetShape.getOrientation());
@@ -138,29 +144,6 @@ public class BotStarter {
         return terminal;
     }
 
-    private int eval(Field field, Shape tempShape, BotState state){
-        Cell[] neighbors = new Cell[4];
-        int h=0;
-        for(int i=0; i<field.getWidth(); i++){
-            for (int j=0; j<field.getHeight(); j++){
-                Cell c = field.getCell(i,j);
-                if(!c.isEmpty() || tempShape.isAt(c.getLocation())){
-                    neighbors[0]=field.getCell(i-1,j);
-                    neighbors[1]=field.getCell(i+1,j);
-                    neighbors[2]=field.getCell(i,j+1);
-                    neighbors[3]=field.getCell(i,j-1);
-
-                    for (Cell n: neighbors){
-                        if (n!= null && n.isEmpty() && !tempShape.isAt(n.getLocation())) {
-                            h++;
-                        }
-                    }
-                }
-            }
-        }
-        return h;
-    }
-
 
     public static void main(String[] args)
     {
@@ -168,12 +151,21 @@ public class BotStarter {
         parser.run();
     }
 
+    private static class NodeComparator implements Comparator<Node>{
+
+        @Override
+        public int compare(Node o1, Node o2) {
+            return o1.u-o2.u;
+        }
+        
+    }
     private static class Node implements Comparable<Node>{
         private int x;
         private int y;
         private int o;
         private int h;
         private int g;
+        private int u;
 
         private Node parent;
 
