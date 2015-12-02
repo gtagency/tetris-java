@@ -17,17 +17,18 @@
 
 package org.gtagency.autotetris.bot;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Map.Entry;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.TreeMap;
+import java.util.Queue;
 
 import org.gtagency.autotetris.moves.MoveType;
-import org.gtagency.autotetris.field.Cell;
 import org.gtagency.autotetris.field.Field;
 import org.gtagency.autotetris.field.Shape;
+import org.gtagency.autotetris.field.ShapeType;
 
 /**
  * BotStarter class
@@ -52,101 +53,79 @@ public class BotStarter {
         ArrayList<MoveType> moves = new ArrayList<MoveType>();
         Utility u = new PrimaryUtility();
         Field field = state.getMyField();
-        Shape currentShape = field.liftShape(state.getCurrentShape(), state.getShapeLocation());
-        Shape tempShape = new Shape(state.getCurrentShape(), field, state.getShapeLocation());
+        Shape tempShape = field.liftShape(state.getCurrentShape(), state.getShapeLocation());
+        Shape nextShape = new Shape(state.getNextShape(), field, new Point());
 
         ArrayList<Node> terminal = findTerminalStates(field, tempShape);
         PriorityQueue<Node> sortedTerminal = new PriorityQueue<Node>(new NodeComparator());
-        //TreeMap<Integer, Node> sortedTerminal = new TreeMap<Integer, Node>();
         for(Node i:terminal){
-            tempShape.setLocation(i.x, i.y);
-            while(tempShape.getOrientation()!=i.o){
-                tempShape.turnRight();
+            i.u = Integer.MAX_VALUE;
+            nextShape.setLocation(-1, 4);
+            while(nextShape.getOrientation() != 0){
+                nextShape.turnRight();
             }
-            i.u = (int) u.value(field, tempShape, state);
+            ArrayList<Node> secondDepth = findTerminalStates(i.f, nextShape);
+            for(Node j: secondDepth){
+                j.u = (int) u.value(j.f, i.cleared, j.cleared, state);
+                if(j.u < i.u){
+                    i.u = j.u;
+                }
+            }
             sortedTerminal.add(i);
         }
-        do{
-            moves.clear();
-            Node temp = sortedTerminal.poll();
-            System.err.println(temp.u);
-            //System.err.println(temp.x + "," + temp.y + "," + temp.o);
-            tempShape.setLocation(temp.x, temp.y);
-            while(tempShape.getOrientation()!=temp.o){
-                tempShape.turnRight();
-            }
-        }while(!findPath(moves, field, currentShape, tempShape));
+
+        Node temp = sortedTerminal.poll();
+        System.err.println(temp.u);
+        while(temp.parent != null){
+            moves.add(0,temp.findMove(temp.parent));
+            temp = temp.parent;
+        }
+        moves.add(MoveType.DOWN);
         return moves;
     }
 
-    private boolean findPath(ArrayList<MoveType> moves, Field field, Shape startShape, Shape targetShape){
-        Node startNode = new Node(startShape.getLocation().x, startShape.getLocation().y, startShape.getOrientation());
-        Node endNode = new Node(targetShape.getLocation().x, targetShape.getLocation().y, targetShape.getOrientation());
-        PriorityQueue<Node> queue = new PriorityQueue<Node>();
-        HashSet<Node> traversed = new HashSet<Node>();
-        do{
-            if(endNode.equals(startNode)){
-                while(endNode.parent != null){
-                    //System.err.println(endNode.findMove(endNode.parent)+ "," + endNode.x+"," + endNode.y+ "," +endNode.o);
-                    moves.add(endNode.findMove(endNode.parent));
-                    endNode = endNode.parent;
-                }
-                moves.add(MoveType.DOWN);
-                return true;
-            }
-            ArrayList<Node> branches = new ArrayList<Node>();
-            for(int i=-1; i<3; i+=2){
-                branches.add(new Node(endNode.x + i, endNode.y, endNode.o));
-                branches.add(new Node(endNode.x, endNode.y + i, endNode.o));
-                branches.add(new Node(endNode.x, endNode.y, (endNode.o+4+i)%4));
-            }
-            for(Node n: branches){
-                if(!traversed.contains(n) && n.isValid(field, targetShape)){
-                   traversed.add(n);
-                   n.parent = endNode;
-                   n.g = endNode.g + 1 + ((endNode.o == n.o)? 0 : 4);
-                   n.h = Math.abs((startNode.x - n.x)) + Math.abs((startNode.y-n.y)) + 10*Math.abs(startNode.o-n.o);
-                   queue.add(n);
-                }
-            }
-            endNode = queue.poll();
-        } while(endNode != null);
-        return false;
-        /*Node startNode = new Node(startShape.getLocation().x, startShape.getLocation().y, startShape.getOrientation());
-        Node endNode = new Node(targetShape.getLocation().x, targetShape.getLocation().y, targetShape.getOrientation());
-        PriorityQueue<Node> startQ = new PriorityQueue<Node>();
-        PriorityQueue<Node> endQ = new PriorityQueue<Node>();
-        HashSet<Node> startTraversed = new HashSet<Node>();
-        HashSet<Node> endTraversed = new HashSet<Node>();
-        do{
-            Node temp1;
-            Node temp2;
-        } while(!startQ.isEmpty() && !endQ.isEmpty());
-        return false;*/    
-    }
 
     private ArrayList<Node> findTerminalStates(Field field, Shape tempShape){
         ArrayList<Node> terminal = new ArrayList<>();
-        for(int k=0; k<4; k++){
-            for(int i=0; i<field.getWidth(); i++){
-                for(int j=0; j<field.getHeight(); j++){
-                    tempShape.setLocation(i, j);
-                    if(!(tempShape.isOutOfBoundaries(field) || tempShape.hasCollision(field))){
-                        tempShape.setLocation(i, j+1);
-                        if(tempShape.isOutOfBoundaries(field) || tempShape.hasCollision(field)){
-                            terminal.add(new Node(i,j,k));
-                        }
-                    }
+        HashSet<Node> traversed = new HashSet<Node>();
+        Node current = new Node(tempShape.getLocation().x, tempShape.getLocation().y, tempShape.getOrientation());
+        traversed.add(current);
+        Queue<Node> queue = new LinkedList<Node>();
+        do{
+            if(current.isValid(field, tempShape) && current.isTerminal(field, tempShape)){
+                current.f = field.clone();
+                tempShape.setLocation(current.x, current.y);
+                while(tempShape.getOrientation() != current.o){
+                    tempShape.turnRight();
+                }
+                tempShape.place(current.f);
+                current.cleared = current.f.removeFullRows();
+                terminal.add(current);
+            }
+            ArrayList<Node> branches = new ArrayList<Node>();
+            for(int i=-1; i<3; i+=2){
+                branches.add(new Node(current.x + i, current.y, current.o));
+                branches.add(new Node(current.x, current.y, (current.o+4+i)%4));
+            }
+            branches.add(new Node(current.x, current.y + 1, current.o));
+            
+            for(Node n: branches){
+                if(!traversed.contains(n) && n.isValid(field, tempShape)){
+                    traversed.add(n);
+                    n.parent = current;
+                    queue.add(n);
                 }
             }
-            tempShape.turnRight();
-        }
+            //System.out.println(current.x + "," + current.y + "," + current.o);
+            current = queue.poll();
+        } while(current != null);
         return terminal;
     }
 
 
     public static void main(String[] args)
     {
+       
         BotParser parser = new BotParser(new BotStarter());
         parser.run();
     }
@@ -157,16 +136,17 @@ public class BotStarter {
         public int compare(Node o1, Node o2) {
             return o1.u-o2.u;
         }
-        
+
     }
-    private static class Node implements Comparable<Node>{
+
+    private static class Node{
         private int x;
         private int y;
         private int o;
-        private int h;
-        private int g;
         private int u;
 
+        private Field f;
+        private int cleared;
         private Node parent;
 
         public Node(int x, int y, int o){
@@ -175,15 +155,15 @@ public class BotStarter {
             this.o=o;
         }
 
-        public MoveType findMove(Node n){//finds the move that turns this Node into n
+        public MoveType findMove(Node n){//finds the move that turns n into this node
             if((o+1)%4 == n.o)
-                return MoveType.TURNRIGHT;
-            if((o+3)%4 == n.o)
                 return MoveType.TURNLEFT;
+            if((o+3)%4 == n.o)
+                return MoveType.TURNRIGHT;
             if (x - n.x == 1)
-                return MoveType.LEFT;
-            if (x - n.x == -1)
                 return MoveType.RIGHT;
+            if (x - n.x == -1)
+                return MoveType.LEFT;
             return MoveType.DOWN;
         }
 
@@ -194,7 +174,15 @@ public class BotStarter {
             s.setLocation(x, y);
             return !(s.hasCollision(f) || s.isOutOfBoundaries(f));
         }
-        
+
+        public boolean isTerminal(Field f, Shape s){//does NOT check if currently valid
+            while(s.getOrientation() != o){
+                s.turnRight();
+            }
+            s.setLocation(x, y+1);
+            return (s.hasCollision(f) || s.isOutOfBoundaries(f));
+        }
+
         @Override
         public boolean equals(Object n){
             if(!(n instanceof Node))
@@ -203,8 +191,8 @@ public class BotStarter {
         }
 
         @Override
-        public int compareTo(Node o) {
-            return g + h - o.g - o.h;
+        public int hashCode(){
+            return 10000*x+100*y+o;
         }
 
     }

@@ -19,6 +19,7 @@ package org.gtagency.autotetris.field;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.util.ArrayList;
 
 import org.gtagency.autotetris.field.Cell;
 
@@ -39,7 +40,18 @@ public class Field {
     private int width;
     private int height;
     private Cell grid[][];
-
+    
+    private Field(Field field) {
+        this.width = field.getWidth();
+        this.height = field.getHeight();
+        this.grid = new Cell[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                grid[x][y] = new Cell(x, y, field.getCell(x, y).getState());
+            }
+        }
+    }
+    
     public Field(Field field, Shape shape) {
         this.width = field.getWidth();
         this.height = field.getHeight();
@@ -134,21 +146,10 @@ public class Field {
         this.grid[x][y] = c;
     }
 
-    public void clearRow() {
-        for (int y = 0; y < getHeight() - 1; y++) {
-            for (int x = 0; x < getWidth(); x++) {
-                this.grid[x][y] = this.grid[x][y + 1];
-            }
-        }
-        for (int x = 0; x < getWidth(); x++) {
-            this.grid[x][getHeight() - 1] = new Cell(x, getHeight() - 1, 
-                    CellType.EMPTY);
-        }
-    }
-
-    public void removeFullRows(){
+    public int removeFullRows(){
         int oldRow=height-1;
         int newRow=oldRow;
+        int cleared=0;
         while (newRow>=0){
             while (oldRow>=0 && isFull(oldRow)){
                 oldRow-=1;
@@ -159,6 +160,7 @@ public class Field {
                 }
             }
             else{
+                cleared++;
                 for(int i=0; i<width; i++){
                     grid[i][newRow]=new Cell();
                 }
@@ -166,6 +168,7 @@ public class Field {
             newRow-=1;
             oldRow-=1;
         }
+        return cleared;
     }
 
     public boolean isFull(int row){
@@ -196,5 +199,9 @@ public class Field {
 
     public int getWidth() {
         return this.width;
+    }
+    
+    public Field clone(){
+        return new Field(this);
     }
 }

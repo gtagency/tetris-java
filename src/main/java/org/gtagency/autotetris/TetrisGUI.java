@@ -57,7 +57,7 @@ public class TetrisGUI{
 
 
     private final long TIME_PER_MOVE = 500l;        // time in milliseconds that bots get per move
-    private final long TIMEBANK_MAX = 10000l;       // time bank each bot receives
+    private final long TIMEBANK_MAX = 1000l;       // time bank each bot receives
     private final long FIELD_WIDTH = 10l;
     private final long FIELD_HEIGHT = 20l;
     private final Field testBoard = new Field(10, 20,
@@ -266,7 +266,7 @@ public class TetrisGUI{
         fallingPiece.oneDown();
         if(fallingPiece.hasCollision(board) || fallingPiece.isOutOfBoundaries(board)){
             fallingPiece.oneUp();
-            fallingPiece.place();
+            fallingPiece.place(board);
             board.removeFullRows();
             newFallingPiece();
             if(fallingPiece.hasCollision(board) || fallingPiece.isOutOfBoundaries(board)){

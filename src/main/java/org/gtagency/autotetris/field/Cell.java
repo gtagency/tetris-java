@@ -52,7 +52,7 @@ public class Cell {
 	}
 	
 	public boolean isOutOfBoundaries(Field f) {
-		if(this.location.x >= f.getWidth() || this.location.x < 0 || this.location.y >= f.getHeight()) 
+		if(this.location.x >= f.getWidth() || this.location.x < 0 || this.location.y >= f.getHeight() || this.location.y < 0) 
 			return true;
 		return false;
 	}

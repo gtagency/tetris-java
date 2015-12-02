@@ -5,5 +5,5 @@ import org.gtagency.autotetris.field.Shape;
 import org.gtagency.autotetris.bot.BotState;
 
 public interface Utility {
-    double value(Field field, Shape tempShape, BotState state);
+    double value(Field field, int firstCleared, int secondCleared, BotState state);
 }
