@@ -108,7 +108,7 @@ public class BotStarter {
                 branches.add(new Node(current.x, current.y, (current.o+4+i)%4));
             }
             branches.add(new Node(current.x, current.y + 1, current.o));
-            
+
             for(Node n: branches){
                 if(!traversed.contains(n) && n.isValid(field, tempShape)){
                     traversed.add(n);
@@ -125,7 +125,7 @@ public class BotStarter {
 
     public static void main(String[] args)
     {
-       
+
         BotParser parser = new BotParser(new BotStarter());
         parser.run();
     }

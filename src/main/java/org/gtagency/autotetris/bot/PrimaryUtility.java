@@ -1,22 +1,22 @@
 package org.gtagency.autotetris.bot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
 import org.gtagency.autotetris.field.Field;
 import org.gtagency.autotetris.field.Cell;
 
 public class PrimaryUtility implements Utility {
 
-    /**
-     *@Override
-     *TODO fix turning?, horizontal empty block utility for sides / allow 1 col,
-     */
     public double value(Field field, int firstCleared, int secondCleared, BotState state) {
         /////////////////////////////////////
         //cell neighbor utilities
-        
+
         Cell[] neighbors = new Cell[4];
         int h = 0;
         int maxHeight = field.getHeight();
+        int[] localMaxHeights = new int[field.getWidth()];
+
         for(int i=0; i<field.getWidth(); i++){
             int localMaxHeight = field.getHeight();
             for (int j=0; j<field.getHeight(); j++){
@@ -43,7 +43,7 @@ public class PrimaryUtility implements Utility {
                     Cell l;
                     Cell r;
                     int k = 1;
-                    if(i != 0 && i != field.getWidth() - 1){
+                    /*if(i != 0 && i != field.getWidth() - 1){
                         do{
                             k++;
                             l = field.getCell(i-1, j-k);
@@ -53,12 +53,17 @@ public class PrimaryUtility implements Utility {
                                 h+= 4 * k; //for upper diagonal blocks
                             }
                         }while(l!= null && !l.isEmpty() && !r.isEmpty());
-                    }
+                    }*/
 
                     /////////////////////////////////////
 
                     if (j > localMaxHeight){
-                        h+= 10; //for multiple empty blocks in same col
+                        l = field.getCell(i-1, j);
+                        r = field.getCell(i+1, j);
+                        if((l == null || !l.isEmpty()) && (r == null || !r.isEmpty())){
+                            h+=6; //extra penalty if surrounded on sides
+                        }
+                        h+= 4; //for multiple empty blocks in same col
                     }
 
                     k = 0;
@@ -66,23 +71,37 @@ public class PrimaryUtility implements Utility {
                         k++;
                         n = field.getCell(i, j-k);
                         if(n!= null && (!n.isEmpty())){
-                            h+= 20 * (1/((double)k)); //for multiple filled blocks over empty block
+                            h+= 12 * (1/((double)k)); //for multiple filled blocks over empty block
                         }
                     }while(n!= null && (!n.isEmpty()));
                 }
             }
+            localMaxHeights[i] = localMaxHeight;
             if(localMaxHeight < maxHeight){
                 maxHeight = localMaxHeight;
             }
         }
         maxHeight = field.getHeight()- maxHeight;
         //penalizes extreme heights
-        h += 180*(Math.pow(((double)Math.max((maxHeight - field.getHeight()/2),0)),2)/Math.pow((double)field.getHeight()/2,2));
+        //h += 180*(Math.pow(((double)Math.max((maxHeight - field.getHeight()/2),0)),2)/Math.pow((double)field.getHeight()/2,2));
+        h += 300*(Math.pow(((double)Math.max((maxHeight - field.getHeight()/2),0)),2)/Math.pow((double)field.getHeight()/2,2));
+
+
+        double forgivenCol = 0;
+        for(int i=1; i<localMaxHeights.length; i++){
+            double penalty = Math.pow(Math.max(Math.abs(localMaxHeights[i]-localMaxHeights[i-1])-1, 0),2);
+            h += penalty; //penalizes column height differences
+            if(penalty > forgivenCol){
+                forgivenCol = penalty;
+            }
+        }
+        h -= forgivenCol; //allows 1 large height difference
+
 
         /////////////////////////////////////////////////////
         //contiguity utilities
-        
-        int h2 = 200;
+
+        int h2 = 0;
         for (int row = 0; row < field.getHeight(); row++) {
             ArrayList<Integer> contig = new ArrayList<>();
             int currentCount = 0;
@@ -105,28 +124,28 @@ public class PrimaryUtility implements Utility {
             //penalizes non-contiguous blocks with height weighed
             h2 += ((double)sum * (.15 + .85*Math.pow(((double)(field.getHeight() + 1 - row)),2)/Math.pow((double)field.getHeight(),2)));
         }
-        
+
         /////////////////////////////
         //rows cleared utilities
         int h3 = 0;
         //-1 is highly desirable, 1 is highly undesirable
         double clearDesirability =  ((maxHeight > field.getHeight()/2)?-1:1) * Math.pow(((double)(maxHeight - field.getHeight()/2)),2)/Math.pow((double)field.getHeight()/2,2);
-        
+
         int oneCleared = ((firstCleared == 1)?1:0) + ((secondCleared == 1)?1:0);
-        h3 += 8 * oneCleared * clearDesirability;
-        
+        h3 += 12 * oneCleared * clearDesirability;
+
         int twoCleared = ((firstCleared == 2)?1:0) + ((secondCleared == 2)?1:0);
-        h3 += 8* twoCleared * (clearDesirability-.5*twoCleared);
-        
+        h3 += 12* twoCleared * (clearDesirability-.5*twoCleared);
+
         int manyCleared = ((firstCleared >2)?1:0) + ((secondCleared > 2)?1:0);
-        h3 -= 40* Math.pow(manyCleared,2);
-        
+        h3 -= 45* Math.pow(manyCleared,2);
+
         /////////////////////////////
         h = 2*h + h2 + h3;
 
-        if (h < 0) {
+        /*if (h < 0) {
             return 0;
-        }
+        }*/
         return h;
     }
 }

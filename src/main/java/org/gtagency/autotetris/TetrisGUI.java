@@ -191,6 +191,14 @@ public class TetrisGUI{
                     newFallingPiece();
                     drawBoard();
                 }
+                if(e.getKeyChar() == 'o'){
+                    while(!moves.isEmpty()){
+                        processMove(moves.remove(0));
+                    }
+                    dump.setText(player.getDump());
+                    msgBox.setText(messages.toString());
+                    frame.requestFocus();
+                }
             }
             @Override public void keyPressed(KeyEvent e) {}
             @Override public void keyReleased(KeyEvent e) {}
