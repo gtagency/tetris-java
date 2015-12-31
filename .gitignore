@@ -13,4 +13,5 @@ target/
 hs_err_pid*
 
 # tetris python is not kept track of in this repo
+tetris-python
 tetris-python/*
