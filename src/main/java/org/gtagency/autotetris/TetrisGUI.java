@@ -132,12 +132,12 @@ public class TetrisGUI{
 
     private void sendSettings(EnginePlayer player)
     {
-        player.sendInfo("settings player_names player1");
+        player.sendInfo("settings player_names player1,player2");
         player.sendInfo("settings your_bot " + player.getName());
         player.sendInfo("settings timebank " + TIMEBANK_MAX);
         player.sendInfo("settings time_per_move " + TIME_PER_MOVE); 
         player.sendInfo("settings field_width " + FIELD_WIDTH); 
-        player.sendInfo("settings field_height " + FIELD_HEIGHT); 
+        player.sendInfo("settings field_height " + FIELD_HEIGHT);
     }
 
     public void finishSetUp(){
@@ -346,7 +346,8 @@ public class TetrisGUI{
 
     public static void main(String args[]) throws Exception
     {   
-        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp bin org/gtagency/autotetris/bot/BotStarter"));
+        //IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("java -cp bin org/gtagency/autotetris/bot/BotStarter"));
+        IOPlayer player = new IOPlayer(Runtime.getRuntime().exec("python tetris-python/BotRun.py"));
         player.run();
         new TetrisGUI().setupGame(player);
     }

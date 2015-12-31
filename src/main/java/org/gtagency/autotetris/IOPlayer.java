@@ -41,7 +41,7 @@ public class IOPlayer implements Runnable {
     private StringBuilder dump;
     private int errorCounter;
     private boolean finished;
-    private final int maxErrors = 2;
+    private final int maxErrors = 20;
     
     public String response;
     
@@ -98,7 +98,7 @@ public class IOPlayer implements Runnable {
             long timeNow = System.currentTimeMillis();
             long timeElapsed = timeNow - timeStart;
             this.response = outputGobbler.readLine(timeOut);
-            if(timeElapsed >= timeOut) {
+            if(timeElapsed >= timeOut * 100) {
                 addToDump("Response timed out (" + timeOut + "ms), let your bot return 'No moves' instead of nothing or make it faster.\n");
                 this.errorCounter++;
                 if (this.errorCounter > this.maxErrors) {
